@@ -3,6 +3,8 @@ package jja.cc.productCalculator.functional;
 import jja.cc.productCalculator.ProductCalculatorApplication;
 import jja.cc.productCalculator.model.Customer;
 import jja.cc.productCalculator.model.Product;
+import jja.cc.productCalculator.model.TimeDiscount;
+import jja.cc.productCalculator.model.VolumeDiscount;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -13,14 +15,17 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(classes = ProductCalculatorApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ProductCalculatorApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class CustomerCrudTest {
+public class SingleFunctionalTest {
 
     private static final String BASE_URL = "http://localhost:";
     @LocalServerPort
@@ -66,7 +71,7 @@ public class CustomerCrudTest {
     }
 
     @Test
-    @Order(4)
+    @Order(100)
     public void testDeleteProduct() {
         restTemplate.delete(BASE_URL + port + "/products/1", new HashMap<>());
     }
@@ -101,15 +106,64 @@ public class CustomerCrudTest {
     @Test
     @Order(7)
     public void testGetCustomer() {
-        ResponseEntity<Customer> customer = restTemplate.getForEntity(BASE_URL + port + "/customers/2", Customer.class);
+        ResponseEntity<Customer> customer = restTemplate.getForEntity(BASE_URL + port + "/customers/2",
+                Customer.class);
         assertEquals(HttpStatus.OK, customer.getStatusCode());
         assertEquals("My customer with a new Name", customer.getBody().getName());
     }
 
     @Test
-    @Order(8)
+    @Order(101)
     public void testDeleteCustomer() {
         restTemplate.delete(BASE_URL + port + "/customers/2", new HashMap<>());
+    }
+
+    @Test
+    @Order(10)
+    public void testAddVolumeDiscount() {
+        VolumeDiscount volumeDiscount = new VolumeDiscount();
+        volumeDiscount.setDiscount(10.0);
+        volumeDiscount.setMinAmount(1_000.0);
+        volumeDiscount.setMaxAmount(10_000.0);
+        ResponseEntity<VolumeDiscount> discount =
+                restTemplate.postForEntity(BASE_URL + port + "/customers/2/volumeDiscounts", volumeDiscount,
+                        VolumeDiscount.class);
+        assertEquals(HttpStatus.OK, discount.getStatusCode());
+    }
+
+    @Test
+    @Order(11)
+    public void testAddTimeDiscount() {
+        TimeDiscount timeDiscount = new TimeDiscount();
+        timeDiscount.setDiscount(10.0);
+        timeDiscount.setFromDate(Instant.now());
+        timeDiscount.setToDate(Instant.now().plus(1, ChronoUnit.HOURS));
+        ResponseEntity<TimeDiscount> productCreated =
+                restTemplate.postForEntity(BASE_URL + port + "/customers/2/timeDiscounts", timeDiscount,
+                        TimeDiscount.class);
+        assertEquals(HttpStatus.OK, productCreated.getStatusCode());
+    }
+//TODO resolve problem with hibernate object deserialization!
+//    @Test
+//    @Order(12)
+//    public void testAddProductDiscount() {
+//        Product product = new Product();
+//        product.setId(1L);
+//        ProductDiscount productDiscount = new ProductDiscount();
+//        productDiscount.setDiscount(10.0);
+//        productDiscount.setProduct(product);
+//        ResponseEntity<ProductDiscount> productCreated =
+//                restTemplate.postForEntity(BASE_URL + port + "/customers/2/productDiscounts", productDiscount,
+//                        ProductDiscount.class);
+//        assertEquals(HttpStatus.OK, productCreated.getStatusCode());
+//    }
+
+    @Test
+    @Order(14)
+    public void testGetCustomerDiscounts() {
+        Object[] response = restTemplate.getForObject(BASE_URL + port + "/customers/2/discounts",
+                Object[].class);
+        assertNotNull(response);
     }
 
 

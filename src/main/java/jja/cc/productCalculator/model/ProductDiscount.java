@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 public class ProductDiscount extends Discount {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    Product product;
+    private Product product;
     @NotNull
     Double discount;
 }

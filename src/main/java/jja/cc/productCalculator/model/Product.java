@@ -2,6 +2,8 @@ package jja.cc.productCalculator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -11,6 +13,8 @@ import java.util.Set;
 
 @Data
 @Entity
+@ToString(exclude = "discounts")
+@EqualsAndHashCode(exclude = "discounts")
 public class Product {
     @Id
     @GeneratedValue

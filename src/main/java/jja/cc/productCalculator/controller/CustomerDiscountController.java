@@ -87,4 +87,6 @@ public class CustomerDiscountController {
         discountRepository.save(productDiscount);
         return ResponseEntity.ok(productDiscount);
     }
+
+
 }
