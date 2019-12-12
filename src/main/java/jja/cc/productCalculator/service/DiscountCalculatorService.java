@@ -53,7 +53,7 @@ public class DiscountCalculatorService {
     private double applyDiscountReduction(Customer customer, double totalPriceBeforeDiscounts, double totalPriceAfterDiscounts) {
         double totalDiscount = totalPriceAfterDiscounts / totalPriceBeforeDiscounts * 100;
         if (customer.getMaxDiscount() != null && customer.getMaxDiscount() < totalDiscount) {
-            totalPriceAfterDiscounts = totalPriceBeforeDiscounts * (100 - customer.getMaxDiscount());
+            totalPriceAfterDiscounts = totalPriceBeforeDiscounts * (100 - customer.getMaxDiscount()) / 100;
         }
         return totalPriceAfterDiscounts;
     }
