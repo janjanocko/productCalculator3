@@ -1,30 +1,25 @@
 package jja.cc.productCalculator.service;
 
 import jja.cc.productCalculator.model.*;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Service
 public class DiscountCalculatorService {
     public Double calculate(Customer customer, Map<Product, Double> products) {
         Map<Product, Double> discounts = new HashMap<>();
         Map<Product, Double> pricePerProduct = new HashMap<>();
-
         double totalPriceBeforeDiscounts = 0.0;
-
         totalPriceBeforeDiscounts = countTotalsAndApplyProductAndTimeDiscounts(customer, products, discounts,
                 pricePerProduct, totalPriceBeforeDiscounts);
-
         applyVolumeDiscount(customer, products, discounts, totalPriceBeforeDiscounts);
-
         calculateTotalPriceAfterDiscounts(products, discounts, pricePerProduct);
-
         double totalPriceAfterDiscounts = pricePerProduct.values().stream().mapToDouble(Double::doubleValue).sum();
-
         totalPriceAfterDiscounts = applyDiscountReduction(customer, totalPriceBeforeDiscounts, totalPriceAfterDiscounts);
-
         return totalPriceAfterDiscounts;
     }
 

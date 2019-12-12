@@ -11,5 +11,5 @@ public class ProductCountDto {
     Long productId;
     @NotNull
     @Min(1)
-    Integer count;
+    Double count;
 }
