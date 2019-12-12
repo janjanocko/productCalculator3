@@ -35,8 +35,8 @@ public class CustomerController {
         Optional<Customer> customerOptional = customerRepository.findById(id);
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
-            customer.setDiscounts(newCustomer.getDiscounts());
             customer.setName(newCustomer.getName());
+            customerRepository.save(customer);
             return ResponseEntity.ok(customer);
         }
         return ResponseEntity.notFound().build();
