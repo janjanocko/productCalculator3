@@ -11,15 +11,24 @@ import java.util.Optional;
 @Service
 public class DiscountCalculatorService {
     public Double calculate(Customer customer, Map<Product, Double> products) {
+        //temporary discount per product
         Map<Product, Double> discounts = new HashMap<>();
+
+        //price per product for all products before discounts
         Map<Product, Double> pricePerProduct = new HashMap<>();
         double totalPriceBeforeDiscounts = 0.0;
+
         totalPriceBeforeDiscounts = countTotalsAndApplyProductAndTimeDiscounts(customer, products, discounts,
                 pricePerProduct, totalPriceBeforeDiscounts);
+
         applyVolumeDiscount(customer, products, discounts, totalPriceBeforeDiscounts);
+
         calculateTotalPriceAfterDiscounts(products, discounts, pricePerProduct);
+
         double totalPriceAfterDiscounts = pricePerProduct.values().stream().mapToDouble(Double::doubleValue).sum();
+
         totalPriceAfterDiscounts = applyDiscountReduction(customer, totalPriceBeforeDiscounts, totalPriceAfterDiscounts);
+
         return totalPriceAfterDiscounts;
     }
 
