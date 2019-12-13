@@ -33,12 +33,17 @@ public class CustomerDiscountController {
 
     @DeleteMapping("/customers/{customerId}/discounts/{discountId}")
     ResponseEntity<Void> deleteDiscount(@PathVariable Long customerId, @PathVariable Long discountId) {
-        Optional<Customer> customer = customerRepository.findById(customerId);
-        Optional<Discount> discount = discountRepository.findById(discountId);
-        if (customer.isEmpty() || discount.isEmpty()) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+        Optional<Discount> discountOptional = discountRepository.findById(discountId);
+        if (customerOptional.isEmpty() || discountOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        discountRepository.delete(discount.get());
+        Discount discount = discountOptional.get();
+        customerOptional.get().getDiscounts().remove(discountOptional.get());
+        if (discount instanceof ProductDiscount) {
+            ((ProductDiscount) discount).getProduct().getDiscounts().remove(discount);
+        }
+        discountRepository.delete(discountOptional.get());
         return ResponseEntity.noContent().build();
     }
 

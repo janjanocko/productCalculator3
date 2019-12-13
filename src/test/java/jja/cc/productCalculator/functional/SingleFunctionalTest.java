@@ -1,10 +1,10 @@
 package jja.cc.productCalculator.functional;
 
 import jja.cc.productCalculator.ProductCalculatorApplication;
-import jja.cc.productCalculator.model.Customer;
-import jja.cc.productCalculator.model.Product;
-import jja.cc.productCalculator.model.TimeDiscount;
-import jja.cc.productCalculator.model.VolumeDiscount;
+import jja.cc.productCalculator.dto.CalculateRequestDto;
+import jja.cc.productCalculator.dto.CalculateResponseDto;
+import jja.cc.productCalculator.dto.ProductCountDto;
+import jja.cc.productCalculator.model.*;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -143,20 +143,28 @@ public class SingleFunctionalTest {
                         TimeDiscount.class);
         assertEquals(HttpStatus.OK, productCreated.getStatusCode());
     }
-//TODO resolve problem with hibernate object deserialization!
-//    @Test
-//    @Order(12)
-//    public void testAddProductDiscount() {
-//        Product product = new Product();
-//        product.setId(1L);
-//        ProductDiscount productDiscount = new ProductDiscount();
-//        productDiscount.setDiscount(10.0);
-//        productDiscount.setProduct(product);
-//        ResponseEntity<ProductDiscount> productCreated =
-//                restTemplate.postForEntity(BASE_URL + port + "/customers/2/productDiscounts", productDiscount,
-//                        ProductDiscount.class);
-//        assertEquals(HttpStatus.OK, productCreated.getStatusCode());
-//    }
+
+    @Test
+    @Order(12)
+    public void testAddProductDiscount() {
+        Product product = new Product();
+        product.setId(1L);
+        ProductDiscount productDiscount = new ProductDiscount();
+        productDiscount.setDiscount(10.0);
+        productDiscount.setProduct(product);
+        ResponseEntity<ProductDiscount> productCreated =
+                restTemplate.postForEntity(BASE_URL + port + "/customers/2/productDiscounts", productDiscount,
+                        ProductDiscount.class);
+        assertEquals(HttpStatus.OK, productCreated.getStatusCode());
+    }
+
+    @Test
+    @Order(13)
+    public void testDeleteProductDiscount() {
+        ResponseEntity<Void> response = restTemplate.exchange(
+                BASE_URL + port + "/customers/2/discounts/5", HttpMethod.DELETE, null, Void.class);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
 
     @Test
     @Order(14)
@@ -164,6 +172,31 @@ public class SingleFunctionalTest {
         Object[] response = restTemplate.getForObject(BASE_URL + port + "/customers/2/discounts",
                 Object[].class);
         assertNotNull(response);
+    }
+
+    @Test
+    @Order(15)
+    public void testGetCustomerDiscount() {
+        ResponseEntity<TimeDiscount> response = restTemplate.getForEntity(BASE_URL + port + "/customers/2/discounts/4",
+                TimeDiscount.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    @Order(20)
+    public void testCalculate() {
+        CalculateRequestDto requestDto = new CalculateRequestDto();
+        requestDto.setCustomerId(2L);
+        ProductCountDto productCountDto = new ProductCountDto();
+        productCountDto.setProductId(1L);
+        productCountDto.setCount(5.0);
+        requestDto.getProducts().add(productCountDto);
+
+        ResponseEntity<CalculateResponseDto> responseEntity = restTemplate.postForEntity(BASE_URL + port + "/price",
+                requestDto, CalculateResponseDto.class);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(450.0, responseEntity.getBody().getPrice());
     }
 
 
